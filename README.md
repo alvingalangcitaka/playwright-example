@@ -11,6 +11,6 @@ This is an example of playwright test automation
 ```
 git clone https://github.com/alvingalangcitaka/playwright-example.git
 cd playwright-example
-mvn clean test
+mvn clean verify
 
 ```
