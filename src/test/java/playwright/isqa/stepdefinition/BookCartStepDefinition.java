@@ -65,7 +65,9 @@ public class BookCartStepDefinition {
         playwright = Playwright.create();
         BrowserType.LaunchOptions setHeadless = new BrowserType.LaunchOptions().setHeadless(false);
         browser = playwright.chromium().launch(setHeadless);
-        context = browser.newContext();
+        context = browser.newContext(
+                new Browser.NewContextOptions().setRecordVideoDir(Paths.get("videos"))
+        );
         context.tracing().start(new Tracing.StartOptions()
                 .setScreenshots(true)
                 .setSnapshots(true));
@@ -84,6 +86,7 @@ public class BookCartStepDefinition {
                         + "-trace.zip")));
 
         //close browsers and playwright instances
+        context.close();
         playwright.close();
     }
 }
