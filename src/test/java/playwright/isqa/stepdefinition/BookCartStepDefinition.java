@@ -34,7 +34,8 @@ public class BookCartStepDefinition {
     }
 
     @When("user searches for a {string} book")
-    public void userSearchesForABook(String bookTitle) {
+    public void userSearchesForABook(String bookTitle) throws InterruptedException {
+        Thread.sleep(1000);
         page.getByPlaceholder("Search books", new Page.GetByPlaceholderOptions()
                 .setExact(false)).type(bookTitle);
         page.getByRole(AriaRole.OPTION).first().click();
