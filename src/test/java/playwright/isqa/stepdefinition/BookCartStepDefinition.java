@@ -6,6 +6,7 @@ import com.microsoft.playwright.Playwright;
 import com.microsoft.playwright.options.AriaRole;
 import io.cucumber.java.After;
 import io.cucumber.java.Before;
+import io.cucumber.java.Scenario;
 import io.cucumber.java.en.Given;
 import io.cucumber.java.en.Then;
 import io.cucumber.java.en.When;
@@ -59,9 +60,9 @@ public class BookCartStepDefinition {
     }
 
     @After
-    public void after() {
-        Path screenshotPath = Paths.get(System.currentTimeMillis() + ".jpg");
-        page.screenshot(new Page.ScreenshotOptions().setPath(screenshotPath));
+    public void after(Scenario scenario) {
+        byte[] screenshotBytes = page.screenshot();
+        scenario.attach(screenshotBytes, "image/png", "final screenshot");
         //close browsers and playwright instances
         playwright.close();
     }
