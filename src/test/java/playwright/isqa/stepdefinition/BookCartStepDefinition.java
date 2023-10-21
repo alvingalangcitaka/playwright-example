@@ -20,6 +20,7 @@ public class BookCartStepDefinition {
 
     private Page page;
     private Playwright playwright;
+    private Scenario scenario;
 
     @Given("user already logged in")
     public void userAlreadyLoggedIn() {
@@ -30,6 +31,8 @@ public class BookCartStepDefinition {
         page.getByText("Login").click();
         page.getByLabel("Username").fill("ortoni");
         page.getByLabel("Password").fill("Pass1234$");
+        byte[] screenshotBytes = page.screenshot();
+        scenario.attach(screenshotBytes, "image/png", "login page");
         page.getByRole(AriaRole.BUTTON, new Page.GetByRoleOptions()
                 .setName("Login")).last().click();
     }
@@ -39,6 +42,8 @@ public class BookCartStepDefinition {
         Thread.sleep(1000);
         page.getByPlaceholder("Search books", new Page.GetByPlaceholderOptions()
                 .setExact(false)).type(bookTitle);
+        byte[] screenshotBytes = page.screenshot();
+        scenario.attach(screenshotBytes, "image/png", "search result");
         page.getByRole(AriaRole.OPTION).first().click();
     }
 
@@ -52,7 +57,10 @@ public class BookCartStepDefinition {
 
 
     @Before
-    public void before() {
+    public void before(Scenario scenario) {
+        // put scenario on the field
+        this.scenario = scenario;
+
         // create playwright and browser instances
         playwright = Playwright.create();
         BrowserType.LaunchOptions setHeadless = new BrowserType.LaunchOptions().setHeadless(false);
