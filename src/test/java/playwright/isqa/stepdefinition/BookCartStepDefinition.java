@@ -1,8 +1,6 @@
 package playwright.isqa.stepdefinition;
 
-import com.microsoft.playwright.BrowserType;
-import com.microsoft.playwright.Page;
-import com.microsoft.playwright.Playwright;
+import com.microsoft.playwright.*;
 import com.microsoft.playwright.options.AriaRole;
 import io.cucumber.java.After;
 import io.cucumber.java.Before;
@@ -21,6 +19,8 @@ public class BookCartStepDefinition {
     private Page page;
     private Playwright playwright;
     private Scenario scenario;
+    private Browser browser;
+    private BrowserContext context;
 
     @Given("user already logged in")
     public void userAlreadyLoggedIn() {
@@ -64,13 +64,25 @@ public class BookCartStepDefinition {
         // create playwright and browser instances
         playwright = Playwright.create();
         BrowserType.LaunchOptions setHeadless = new BrowserType.LaunchOptions().setHeadless(false);
-        page = playwright.chromium().launch(setHeadless).newPage();
+        browser = playwright.chromium().launch(setHeadless);
+        context = browser.newContext();
+        context.tracing().start(new Tracing.StartOptions()
+                .setScreenshots(true)
+                .setSnapshots(true));
+        page = context.newPage();
     }
 
     @After
     public void after(Scenario scenario) {
         byte[] screenshotBytes = page.screenshot();
         scenario.attach(screenshotBytes, "image/png", "final screenshot");
+
+        // stop tracing
+        context.tracing().stop(new Tracing.StopOptions()
+                .setPath(Paths.get("traces/"
+                        + System.currentTimeMillis()
+                        + "-trace.zip")));
+
         //close browsers and playwright instances
         playwright.close();
     }
