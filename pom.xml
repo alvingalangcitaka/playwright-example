@@ -56,8 +56,11 @@
                 <groupId>org.apache.maven.plugins</groupId>
                 <artifactId>maven-surefire-plugin</artifactId>
                 <configuration>
+                    <parallel>all</parallel>
+                    <useUnlimitedThreads>true</useUnlimitedThreads>
                     <includes>
                         <include>playwright/isqa/cucumberrunner/QuickSearchRunner.java</include>
+                        <include>playwright/isqa/cucumberrunner/QuickLookupRunner.java</include>
                     </includes>
                     <testFailureIgnore>true</testFailureIgnore>
                 </configuration>
