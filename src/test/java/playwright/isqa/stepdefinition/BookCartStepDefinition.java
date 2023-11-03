@@ -1,11 +1,10 @@
 package playwright.isqa.stepdefinition;
 
-import com.microsoft.playwright.BrowserType;
-import com.microsoft.playwright.Page;
-import com.microsoft.playwright.Playwright;
+import com.microsoft.playwright.*;
 import com.microsoft.playwright.options.AriaRole;
 import io.cucumber.java.After;
 import io.cucumber.java.Before;
+import io.cucumber.java.Scenario;
 import io.cucumber.java.en.Given;
 import io.cucumber.java.en.Then;
 import io.cucumber.java.en.When;
@@ -19,6 +18,9 @@ public class BookCartStepDefinition {
 
     private Page page;
     private Playwright playwright;
+    private Scenario scenario;
+    private Browser browser;
+    private BrowserContext context;
 
     @Given("user already logged in")
     public void userAlreadyLoggedIn() {
@@ -29,6 +31,8 @@ public class BookCartStepDefinition {
         page.getByText("Login").click();
         page.getByLabel("Username").fill("ortoni");
         page.getByLabel("Password").fill("Pass1234$");
+        byte[] screenshotBytes = page.screenshot();
+        scenario.attach(screenshotBytes, "image/png", "login page");
         page.getByRole(AriaRole.BUTTON, new Page.GetByRoleOptions()
                 .setName("Login")).last().click();
     }
@@ -38,6 +42,8 @@ public class BookCartStepDefinition {
         Thread.sleep(1000);
         page.getByPlaceholder("Search books", new Page.GetByPlaceholderOptions()
                 .setExact(false)).type(bookTitle);
+        byte[] screenshotBytes = page.screenshot();
+        scenario.attach(screenshotBytes, "image/png", "search result");
         page.getByRole(AriaRole.OPTION).first().click();
     }
 
@@ -51,18 +57,36 @@ public class BookCartStepDefinition {
 
 
     @Before
-    public void before() {
+    public void before(Scenario scenario) {
+        // put scenario on the field
+        this.scenario = scenario;
+
         // create playwright and browser instances
         playwright = Playwright.create();
         BrowserType.LaunchOptions setHeadless = new BrowserType.LaunchOptions().setHeadless(false);
-        page = playwright.chromium().launch(setHeadless).newPage();
+        browser = playwright.chromium().launch(setHeadless);
+        context = browser.newContext(
+                new Browser.NewContextOptions().setRecordVideoDir(Paths.get("videos"))
+        );
+        context.tracing().start(new Tracing.StartOptions()
+                .setScreenshots(true)
+                .setSnapshots(true));
+        page = context.newPage();
     }
 
     @After
-    public void after() {
-        Path screenshotPath = Paths.get(System.currentTimeMillis() + ".jpg");
-        page.screenshot(new Page.ScreenshotOptions().setPath(screenshotPath));
+    public void after(Scenario scenario) {
+        byte[] screenshotBytes = page.screenshot();
+        scenario.attach(screenshotBytes, "image/png", "final screenshot");
+
+        // stop tracing
+        context.tracing().stop(new Tracing.StopOptions()
+                .setPath(Paths.get("traces/"
+                        + System.currentTimeMillis()
+                        + "-trace.zip")));
+
         //close browsers and playwright instances
+        context.close();
         playwright.close();
     }
 }
