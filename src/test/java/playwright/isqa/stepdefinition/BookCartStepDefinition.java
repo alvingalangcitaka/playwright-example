@@ -63,7 +63,7 @@ public class BookCartStepDefinition {
 
         // create playwright and browser instances
         playwright = Playwright.create();
-        BrowserType.LaunchOptions setHeadless = new BrowserType.LaunchOptions().setHeadless(false);
+        BrowserType.LaunchOptions setHeadless = new BrowserType.LaunchOptions().setHeadless(true);
         browser = playwright.chromium().launch(setHeadless);
         context = browser.newContext(
                 new Browser.NewContextOptions().setRecordVideoDir(Paths.get("videos"))
