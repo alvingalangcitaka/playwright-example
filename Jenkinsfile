@@ -3,8 +3,7 @@ pipeline {
     stages {
         stage('Clone git') {
             steps {
-                git url: 'https://github.com/alvingalangcitaka/playwright-example.git',
-                    branch: 'main'
+                checkout scm
             }
         }
         stage('Run Test') {
